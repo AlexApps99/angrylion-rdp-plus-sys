@@ -4,6 +4,7 @@ const BUILD_PATH: &str = "build/";
 const LIB_PATH: &str = "build/mupen64plus-video-angrylion-plus.so";
 const NEW_LIB_PATH: &str = "build/libmupen64plus-video-angrylion-plus.so";
 
+#[cfg(not(feature = "no-build"))]
 fn main() {
     let p = cmake::Config::new("angrylion-rdp-plus/")
         .profile("Release")
@@ -30,3 +31,6 @@ fn main() {
     //b.write_to_file("src/bindings.rs")
     //    .expect("Could not save bindings");
 }
+
+#[cfg(feature = "no-build")]
+fn main() {}
