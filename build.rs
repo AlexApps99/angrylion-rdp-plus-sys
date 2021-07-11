@@ -1,36 +1,50 @@
-// Hardcoded for Linux, submit a PR to get this working on Windows :)
-const LIB: &str = "mupen64plus-video-angrylion-plus";
-const BUILD_PATH: &str = "build/";
-const LIB_PATH: &str = "build/mupen64plus-video-angrylion-plus.so";
-const NEW_LIB_PATH: &str = "build/libmupen64plus-video-angrylion-plus.so";
-
-#[cfg(not(feature = "no-build"))]
+#[cfg(feature = "build")]
 fn main() {
-    let p = cmake::Config::new("angrylion-rdp-plus/")
-        .profile("Release")
-        .build_target(LIB)
-        .build();
-    std::fs::copy(p.join(LIB_PATH), p.join(NEW_LIB_PATH)).expect("Could not copy library");
-    println!(
-        "cargo:rustc-link-search=native={}",
-        p.join(BUILD_PATH).display()
-    );
-    println!("cargo:rustc-link-lib=dylib={}", LIB);
-    //let b = bindgen::builder()
-    //    .header("headers.h")
-    //    .generate_comments(false)
-    //    .layout_tests(false)
-    //    .blocklist_function("dl.*")
-    //    .clang_args(&[
-    //        "-Iangrylion-rdp-plus/src/",
-    //        "-DM64P_CORE_PROTOTYPES",
-    //        "-DM64P_PLUGIN_PROTOTYPES",
-    //    ])
-    //    .generate()
-    //    .expect("Could not generate bindings");
-    //b.write_to_file("src/bindings.rs")
-    //    .expect("Could not save bindings");
+    let mut obj_loc = std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap());
+    obj_loc.push("angrylion-rdp-plus/src/core/parallel.o");
+    cc::Build::new()
+        .cpp(true)
+        .cargo_metadata(false)
+        .debug(false)
+        .opt_level(3)
+        .warnings(false)
+        .include("angrylion-rdp-plus/src/")
+        .file("angrylion-rdp-plus/src/core/parallel.cpp")
+        // There's no way to only compile an object file
+        // So this is an ugly workaround
+        // Oh well...
+        .compile("useless_library_do_not_touch");
+    // Two compilations are needed so C++'s mangling does not break things
+    cc::Build::new()
+        .debug(false)
+        .opt_level(3)
+        .warnings(false)
+        .object(&obj_loc)
+        .include("angrylion-rdp-plus/src/")
+        .files(&[
+            "angrylion-rdp-plus/src/core/n64video.c",
+            "angrylion-rdp-plus/src/core/n64video/vi.c",
+            "angrylion-rdp-plus/src/core/n64video/vi/divot.c",
+            "angrylion-rdp-plus/src/core/n64video/vi/fetch.c",
+            "angrylion-rdp-plus/src/core/n64video/vi/gamma.c",
+            "angrylion-rdp-plus/src/core/n64video/vi/lerp.c",
+            "angrylion-rdp-plus/src/core/n64video/vi/restore.c",
+            "angrylion-rdp-plus/src/core/n64video/vi/video.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/blender.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/combiner.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/coverage.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/dither.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/fbuffer.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/rasterizer.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/rdram.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/tcoord.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/tex.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/tmem.c",
+            "angrylion-rdp-plus/src/core/n64video/rdp/zbuffer.c",
+        ])
+        .compile("alp-core");
 }
 
-#[cfg(feature = "no-build")]
+#[cfg(not(feature = "build"))]
 fn main() {}

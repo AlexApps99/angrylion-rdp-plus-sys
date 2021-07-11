@@ -1,21 +1,22 @@
 [package]
 name = "angrylion-rdp-plus-sys"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2018"
 authors = ["AlexApps99"]
 repository = "https://github.com/AlexApps99/angrylion-rdp-plus-sys"
 license-file = "MAME License.txt"
 keywords = ["angrylion", "n64", "nintendo", "rdp"]
 categories = ["emulators", "external-ffi-bindings"]
-links = "mupen64plus-video-angrylion-plus"
-description = "The Mupen64Plus plugin of Angrylion+ in a Rust form"
+links = "alp-core"
+description = "Angrylion+ in a Rust form"
 
-[build-dependencies]
-cmake = "0.1.45"
+[build-dependencies.cc]
+version = "1.0.68"
+optional = true
 
 [features]
-no-build = []
+default = ["build"]
+build = ["cc"]
 
 [package.metadata.docs.rs]
-default-target = "x86_64-unknown-linux-gnu"
-features = [ "no-build" ]
+no-default-features = true
