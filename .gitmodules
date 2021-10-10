@@ -1,3 +1,3 @@
-[submodule "angrylion-rdp-plus"]
-	path = angrylion-rdp-plus
+[submodule "angrylion-rdp-plus-sys/angrylion-rdp-plus"]
+	path = angrylion-rdp-plus-sys/angrylion-rdp-plus
 	url = https://github.com/ata4/angrylion-rdp-plus.git
